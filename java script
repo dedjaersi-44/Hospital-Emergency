@@ -1,0 +1,131 @@
+let lat = "";
+let lon = "";
+
+/* ================= START APP ================= */
+window.onload = function () {
+const user = localStorage.getItem("hospitalUser");
+
+if (user) {
+document.getElementById("auth").classList.add("hidden");
+document.getElementById("app").classList.remove("hidden");
+}
+
+getGPS();
+};
+
+/* ================= REGISTER ================= */
+function registerUser() {
+let name = document.getElementById("name").value.trim();
+let phone = document.getElementById("phone").value.trim();
+
+if (!name || !phone) {
+alert("Plotëso të dhënat");
+return;
+}
+
+localStorage.setItem("hospitalUser", JSON.stringify({
+name: name,
+phone: phone
+}));
+
+document.getElementById("auth").classList.add("hidden");
+document.getElementById("app").classList.remove("hidden");
+
+getGPS();
+}
+
+/* ================= GPS ================= */
+function getGPS() {
+if (!navigator.geolocation) return;
+
+navigator.geolocation.getCurrentPosition(
+(pos) => {
+lat = pos.coords.latitude;
+lon = pos.coords.longitude;
+},
+(err) => {
+console.log("GPS nuk u lejua");
+}
+);
+}
+
+function gps() {
+getGPS();
+alert("GPS aktivizuar");
+}
+
+/* ================= MENU ================= */
+function toggleMenu() {
+document.getElementById("menu").classList.toggle("hidden");
+}
+
+function showHome() {
+document.getElementById("menu").classList.add("hidden");
+}
+
+/* ================= LOGOUT ================= */
+function logout() {
+localStorage.removeItem("hospitalUser");
+location.reload();
+}
+
+/* ================= CALL ================= */
+function callNumber(num) {
+window.location.href = "tel:" + num;
+}
+
+/* ================= MAPS ================= */
+function openMap() {
+if (lat && lon) {
+window.open(`https://www.google.com/maps?q=${lat},${lon}`, "_blank");
+} else {
+alert("GPS nuk është gati");
+getGPS();
+}
+}
+
+/* ================= UNIVERSAL SEARCH (SHUMË E RËNDËSISHME) ================= */
+function openSearch(query) {
+if (lat && lon) {
+window.open(
+`https://www.google.com/maps/search/${query}/@${lat},${lon},15z`,
+"_blank"
+);
+} else {
+window.open(
+`https://www.google.com/maps/search/${query}`,
+"_blank"
+);
+}
+}
+
+/* ================= SOS ================= */
+function SOS() {
+let user = JSON.parse(localStorage.getItem("hospitalUser"));
+
+if (!user) {
+alert("Nuk ka user");
+return;
+}
+
+let msg =
+"🚨 SOS EMERGJENCË\n" +
+"Emër: " + user.name + "\n" +
+"Telefon: " + user.phone + "\n" +
+"https://www.google.com/maps?q=" + lat + "," + lon;
+
+window.open("sms:?body=" + encodeURIComponent(msg));
+}
+
+/* ================= AI CHAT ================= */
+function sendAI() {
+let input = document.getElementById("msg");
+let chat = document.getElementById("chat");
+
+if (!input.value.trim()) return;
+
+chat.innerHTML += "<p><b>Ti:</b> " + input.value + "</p>";
+chat.innerHTML += "<p><b>AI:</b> Për raste serioze telefono 112 ose shko në urgjencë.</p>";
+
+input.value = "";
+}
